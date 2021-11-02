@@ -84,6 +84,8 @@ namespace SportsWearShop.Api
             services.AddAuthorization();
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IProductService, ProductService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
