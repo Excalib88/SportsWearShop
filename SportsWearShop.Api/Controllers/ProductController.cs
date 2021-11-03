@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SportsWearShop.Api.Domain.Identity.Models;
 using SportsWearShop.Api.Domain.Identity.Services;
@@ -22,12 +21,6 @@ namespace SportsWearShop.Api.Controllers
         {
             var result = await _productService.Create(request);
             return Ok(new {id = result});
-        }
-
-        [HttpPost("test")]
-        public async Task<IActionResult> Create2(IFormFileCollection formFiles)
-        {
-            return Ok();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SportsWearShop.Api.DataAccess;
 using SportsWearShop.Api.DataAccess.Entities;
 using SportsWearShop.Api.Domain.Identity.Models;
@@ -30,23 +30,6 @@ namespace SportsWearShop.Api.Domain.Identity.Services
 
             var result = await _context.Products.AddAsync(entity);
             
-            if (request.Files != null)
-            {
-                var filenames = await _fileService.BulkUpload(request.Files);
-
-                if (filenames.Any())
-                {
-                    foreach (var filename in filenames)
-                    {
-                        await _context.Pictures.AddAsync(new PictureEntity
-                        {
-                            Filename = filename,
-                            ProductId = result.Entity.Id
-                        });
-                    }
-                }
-            }
-
             if (request.CategoryId != null)
             {
                 await _context.CategoryProducts.AddAsync(new CategoryProductEntity
@@ -58,6 +41,13 @@ namespace SportsWearShop.Api.Domain.Identity.Services
 
             await _context.SaveChangesAsync();
             return result.Entity.Id;
+        }
+
+        public async Task<ProductEntity> GetById(long productId)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == productId);
+
+            return product;
         }
     }
 }

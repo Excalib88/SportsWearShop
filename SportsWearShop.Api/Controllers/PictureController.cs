@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using SportsWearShop.Api.DataAccess;
+using SportsWearShop.Api.DataAccess.Entities;
 using SportsWearShop.Api.Domain.Identity.Services;
 
 namespace SportsWearShop.Api.Controllers
@@ -13,10 +13,12 @@ namespace SportsWearShop.Api.Controllers
     public class PictureController : ControllerBase
     {
         private readonly IFileService _fileService;
+        private readonly ApiDbContext _context;
 
-        public PictureController(IFileService fileService)
+        public PictureController(IFileService fileService, ApiDbContext context)
         {
             _fileService = fileService;
+            _context = context;
         }
 
         [HttpGet("{filename}")]
@@ -36,6 +38,26 @@ namespace SportsWearShop.Api.Controllers
             var result = await _fileService.Upload(formFile);
 
             return Ok(new {result});
+        }
+        
+        [HttpPost("{productId:long}")]
+        public async Task<IActionResult> AddPicturesToProduct(IFormFileCollection formFiles, long productId)
+        {
+            if (formFiles == null) return BadRequest();
+            var filenames = await _fileService.BulkUpload(formFiles);
+
+            if (!filenames.Any()) return Ok();
+            
+            foreach (var filename in filenames)
+            {
+                await _context.Pictures.AddAsync(new PictureEntity
+                {
+                    Filename = filename,
+                    ProductId = productId
+                });
+            }
+
+            return Ok();
         }
     }
 }
